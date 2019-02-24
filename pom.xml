@@ -156,6 +156,7 @@
         <apache.commons.version>3.8.1</apache.commons.version>
         <joda-time.version>2.10.1</joda-time.version>
         <guava.version>27.0.1-jre</guava.version>
+        <tika.version>1.20</tika.version>
 
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -219,6 +220,10 @@
                             </goals>
                             <configuration>
                                 <rules>
+                                    <dependencyConvergence/>
+                                    <requireMavenVersion>
+                                        <version>3.1</version>
+                                    </requireMavenVersion>
                                     <requireJavaVersion>
                                         <version>[1.8,1.9)</version>
                                     </requireJavaVersion>
@@ -367,6 +372,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M2</version>
                     <configuration>
+                        <argLine>-Xmx3072m -Duser.timezone=UTC</argLine>
                         <skipTests>${unit-tests.skip}</skipTests>
                         <excludes>
                             <exclude>**/*IT.java</exclude>
@@ -815,5 +821,41 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Apache Tika library dependencies -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika</artifactId>
+            <version>${tika.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- Apache Camel Tika library dependencies -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-tika</artifactId>
+            <version>3.0.0-M1</version>
+        </dependency>
+
+        <!-- DDF Tika library dependencies -->
+        <!--<dependency>-->
+            <!--<groupId>ddf.mime.tika</groupId>-->
+            <!--<artifactId>mime-tika-resolver</artifactId>-->
+            <!--<version>RELEASE</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>ddf.catalog.transformer</groupId>-->
+            <!--<artifactId>tika-input-transformer</artifactId>-->
+            <!--<version>RELEASE</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
+        <!-- Univocity library dependencies -->
+        <!--<dependency>-->
+        <!--<groupId>com.univocity</groupId>-->
+        <!--<artifactId>univocity-parsers</artifactId>-->
+        <!--<version>2.8.1</version>-->
+        <!--</dependency>-->
     </dependencies>
 </project>
