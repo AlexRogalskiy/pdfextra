@@ -1,2 +1,0 @@
-# pdfextra
-The PdfExtra project
