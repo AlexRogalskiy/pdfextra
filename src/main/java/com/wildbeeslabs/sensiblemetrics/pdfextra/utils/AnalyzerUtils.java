@@ -48,20 +48,18 @@ import java.io.InputStream;
 @UtilityClass
 public class AnalyzerUtils {
 
-    public static String detectDocTypeUsingDetector(final InputStream stream) throws IOException {
+    public static MediaType detectDocTypeByDetector(final InputStream stream) throws IOException {
         final Detector detector = new DefaultDetector();
         final Metadata metadata = new Metadata();
-        final MediaType mediaType = detector.detect(stream, metadata);
-        return mediaType.toString();
+        return detector.detect(stream, metadata);
     }
 
-    public static String detectDocTypeUsingFacade(final InputStream stream) throws IOException {
+    public static String detectDocTypeByFacade(final InputStream stream) throws IOException {
         final Tika tika = new Tika();
-        final String mediaType = tika.detect(stream);
-        return mediaType;
+        return tika.detect(stream);
     }
 
-    public static String extractContentUsingParser(final InputStream stream) throws IOException, TikaException, SAXException {
+    public static String getContentByParser(final InputStream stream) throws IOException, TikaException, SAXException {
         final Parser parser = new AutoDetectParser();
         final ContentHandler handler = new BodyContentHandler();
         final Metadata metadata = new Metadata();
@@ -70,13 +68,12 @@ public class AnalyzerUtils {
         return handler.toString();
     }
 
-    public static String extractContentUsingFacade(final InputStream stream) throws IOException, TikaException {
+    public static String getContentByFacade(final InputStream stream) throws IOException, TikaException {
         final Tika tika = new Tika();
-        final String content = tika.parseToString(stream);
-        return content;
+        return tika.parseToString(stream);
     }
 
-    public static Metadata extractMetadatatUsingParser(final InputStream stream) throws IOException, SAXException, TikaException {
+    public static Metadata getMetadataByParser(final InputStream stream) throws IOException, SAXException, TikaException {
         final Parser parser = new AutoDetectParser();
         final ContentHandler handler = new BodyContentHandler();
         final Metadata metadata = new Metadata();
@@ -85,7 +82,7 @@ public class AnalyzerUtils {
         return metadata;
     }
 
-    public static Metadata extractMetadatatUsingFacade(final InputStream stream) throws IOException, TikaException {
+    public static Metadata getMetadataByFacade(final InputStream stream) throws IOException {
         final Tika tika = new Tika();
         final Metadata metadata = new Metadata();
         tika.parse(stream, metadata);

@@ -29,17 +29,20 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.language.detect.LanguageDetector;
+import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
 
 /**
  * Analyzer utils unit test
@@ -55,96 +58,131 @@ import static org.junit.Assert.assertThat;
 public class AnalyzerUtilsUnitTest {
 
     @Test
-    @DisplayName("Test docx media type by default detector")
+    @DisplayName("Test document media type by default detector")
     public void whenUsingDetector_thenDocumentTypeIsReturned() throws IOException {
         // given
-        final String fileName = "content/tika.docx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.pdf";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        final String mediaType = AnalyzerUtils.detectDocTypeUsingDetector(stream);
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
 
-        // then
-        assertEquals("application/pdf", mediaType);
-        stream.close();
+            // then
+            assertEquals("application/pdf", String.valueOf(mediaType));
+            assertNotEquals("application/octet-stream", String.valueOf(mediaType.toString()));
+        }
     }
 
     @Test
-    @DisplayName("Test docx media type by default facade")
+    @DisplayName("Test document media type by default facade")
     public void whenUsingFacade_thenDocumentTypeIsReturned() throws IOException {
         // given
-        final String fileName = "content/tika.docx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.docx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        String mediaType = AnalyzerUtils.detectDocTypeUsingFacade(stream);
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            String mediaType = AnalyzerUtils.detectDocTypeByFacade(stream);
 
-        // then
-        assertEquals("application/pdf", mediaType);
-        stream.close();
+            // then
+            assertEquals("application/x-tika-ooxml", mediaType);
+            assertNotEquals("application/pdf", mediaType);
+        }
     }
 
     @Test
-    @DisplayName("Test docx content by default parser")
+    @DisplayName("Test document content by default parser")
     public void whenUsingParser_thenContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "content/tika.docx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.docx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        final String content = AnalyzerUtils.extractContentUsingParser(stream);
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final String content = AnalyzerUtils.getContentByParser(stream);
 
-        // then
-        assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
-        assertThat(content, containsString("detects and extracts metadata and text"));
-        stream.close();
+            // then
+            assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
+            assertThat(content, containsString("detects and extracts metadata and text"));
+        }
     }
 
     @Test
-    @DisplayName("Test docx content by default facade")
+    @DisplayName("Test document content by default facade")
     public void whenUsingFacade_thenContentIsReturned() throws IOException, TikaException {
         // given
-        final String fileName = "content/ttika.docx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.docx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        final String content = AnalyzerUtils.extractContentUsingFacade(stream);
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final String content = AnalyzerUtils.getContentByFacade(stream);
 
-        // then
-        assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
-        assertThat(content, containsString("detects and extracts metadata and text"));
-        stream.close();
+            // then
+            assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
+            assertThat(content, containsString("detects and extracts metadata and text"));
+        }
     }
 
     @Test
-    @DisplayName("Test xlsx meta data by default parser")
+    @DisplayName("Test document meta data by default parser")
     public void whenUsingParser_thenMetadataIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "content/tika.xlsx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        final Metadata metadata = AnalyzerUtils.extractMetadatatUsingParser(stream);
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final Metadata metadata = AnalyzerUtils.getMetadataByParser(stream);
 
-        // then
-        assertEquals("org.apache.tika.parser.DefaultParser", metadata.get("X-Parsed-By"));
-        assertEquals("Microsoft Office User", metadata.get("Author"));
-        stream.close();
+            // then
+            assertEquals("org.apache.tika.parser.DefaultParser", metadata.get("X-Parsed-By"));
+            assertEquals("Microsoft Office User", metadata.get("Author"));
+        }
     }
 
     @Test
-    @DisplayName("Test xlsx meta data by default facade")
-    public void whenUsingFacade_thenMetadataIsReturned() throws IOException, TikaException {
+    @DisplayName("Test document meta data by default facade")
+    public void whenUsingFacade_thenMetadataIsReturned() throws IOException {
         // given
-        final String fileName = "content/tika.xlsx";
-        final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
 
-        // when
-        final Metadata metadata = AnalyzerUtils.extractMetadatatUsingFacade(stream);
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final Metadata metadata = AnalyzerUtils.getMetadataByFacade(stream);
 
-        // then
-        assertEquals("org.apache.tika.parser.DefaultParser", metadata.get("X-Parsed-By"));
-        assertEquals("Microsoft Office User", metadata.get("Author"));
-        stream.close();
+            // then
+            assertEquals("org.apache.tika.parser.DefaultParser", metadata.get("X-Parsed-By"));
+            assertEquals("Microsoft Office User", metadata.get("Author"));
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    @DisplayName("Test document language by default facade")
+    public void whenUsingFacade_thenLanguageIsReturned() throws IOException, TikaException {
+        // given
+        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final File file = new File(fileName);
+        assertTrue(file.exists());
+
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final String content = AnalyzerUtils.getContentByFacade(stream);
+
+            final LanguageDetector languageDetector = LanguageDetector.getDefaultLanguageDetector();
+            languageDetector.loadModels();
+            final List<LanguageResult> languageResultList = languageDetector.detectAll(content);
+
+            assertThat(languageResultList, hasSize(10));
+            assertEquals("en", languageResultList.get(0).getLanguage());
+        }
     }
 }
