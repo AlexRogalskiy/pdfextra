@@ -23,9 +23,11 @@
  */
 package com.wildbeeslabs.sensiblemetrics.pdfextra.utils;
 
-import jdk.internal.joptsimple.internal.Strings;
+//import jdk.internal.joptsimple.internal.Strings;
+
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
@@ -56,6 +58,11 @@ import java.util.List;
 @Slf4j
 @UtilityClass
 public class AnalyzerUtils {
+
+    /**
+     * Default maximum text chunk size
+     */
+    public static final int MAXIMUM_TEXT_CHUNK_SIZE = 40;
 
     public static MediaType detectDocTypeByDetector(final InputStream stream) throws IOException {
         final Detector detector = new DefaultDetector();
@@ -126,9 +133,13 @@ public class AnalyzerUtils {
         return handler.toString();
     }
 
+    public static List<String> parseToPlainTextChunks(final InputStream stream) throws IOException, SAXException, TikaException {
+        return parseToPlainTextChunks(stream, MAXIMUM_TEXT_CHUNK_SIZE);
+    }
+
     public static List<String> parseToPlainTextChunks(final InputStream stream, int maxChunkSize) throws IOException, SAXException, TikaException {
         final List<String> chunks = new ArrayList<>();
-        chunks.add(Strings.EMPTY);
+        chunks.add(StringUtils.EMPTY);
         final ContentHandlerDecorator handler = new ContentHandlerDecorator() {
             @Override
             public void characters(char[] ch, int start, int length) {

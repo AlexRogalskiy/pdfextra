@@ -63,7 +63,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.pdf";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
             // when
@@ -81,7 +81,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.docx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
@@ -99,7 +99,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.docx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
@@ -117,7 +117,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.docx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
@@ -135,7 +135,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.xlsx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
@@ -153,7 +153,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.xlsx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
@@ -171,7 +171,7 @@ public class AnalyzerUtilsUnitTest {
         // given
         final String fileName = "src/test/java/resources/content/tika.xlsx";
         final File file = new File(fileName);
-        assertTrue(file.exists());
+        assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
