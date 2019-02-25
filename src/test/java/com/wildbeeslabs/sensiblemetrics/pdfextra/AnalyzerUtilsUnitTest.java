@@ -191,13 +191,13 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test embedded document content by default parser")
     public void whenUsingParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika-embedded.docx";
+        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
-            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler());
+            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler(1_000_000));
 
             // then
             assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
@@ -209,17 +209,33 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test embedded document content by recursive parser")
     public void whenUsingRecursiveParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika-embedded.docx";
+        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
-            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler());
+            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler(1_000_000));
 
             // then
             assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
             assertThat(content, containsString("detects and extracts metadata and text"));
         }
+    }
+
+    @Test
+    @DisplayName("Test embedded document meta data by recursive parser")
+    public void testRecursiveParserWrapperExample() throws IOException, SAXException, TikaException {
+        // given
+        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
+
+        // when
+        final List<Metadata> metadataList = AnalyzerUtils.parseByRecursiveParser(fileName);
+        assertEquals("Number of embedded documents", 0, metadataList.size());
+        //final Metadata metadata = metadataList.get(6);
+
+        // then
+        //assertEquals("/embed1.zip/embed2.zip/embed3.zip/embed3.txt", metadata.get("X-TIKA:embedded_resource_path"));
+        //assertContains("When in the Course", metadata.get("X-TIKA:content"));
     }
 }

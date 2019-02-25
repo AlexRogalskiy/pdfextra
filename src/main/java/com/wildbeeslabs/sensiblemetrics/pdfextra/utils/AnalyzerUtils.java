@@ -25,6 +25,7 @@ package com.wildbeeslabs.sensiblemetrics.pdfextra.utils;
 
 import com.google.common.collect.ImmutableMap;
 import com.wildbeeslabs.sensiblemetrics.pdfextra.model.DocumentInfo;
+import com.wildbeeslabs.sensiblemetrics.pdfextra.parser.DocumentAreaParser;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +33,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.IOUtils;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
@@ -52,11 +54,9 @@ import org.xml.sax.SAXException;
 import java.io.*;
 import java.net.URL;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -384,8 +384,8 @@ public class AnalyzerUtils {
     public static String parseByCompositeHtml(final InputStream stream, final ContentHandler handler) throws Exception {
         final ParseContext context = new ParseContext();
         final Map<MediaType, Parser> parsersByType = new ImmutableMap.Builder<MediaType, Parser>().
-            put(MediaType.parse("text/html"), new HtmlParser()).
-            put(MediaType.parse("application/xml"), new XMLParser())
+            put(MediaType.TEXT_HTML, new HtmlParser()).
+            put(MediaType.APPLICATION_XML, new XMLParser())
             .build();
 
         final CompositeParser parser = new CompositeParser();
@@ -393,7 +393,7 @@ public class AnalyzerUtils {
         parser.setFallback(new TXTParser());
 
         final Metadata metadata = new Metadata();
-        metadata.set(Metadata.CONTENT_TYPE, "text/html");
+        metadata.set(Metadata.CONTENT_TYPE, MediaType.TEXT_HTML.toString());
         parser.parse(stream, handler, metadata, context);
         return handler.toString();
     }
@@ -476,7 +476,7 @@ public class AnalyzerUtils {
      */
     public List<Metadata> parseByRecursiveParser(final String filename) throws IOException, SAXException, TikaException {
         final Parser autoDetectParser = new AutoDetectParser();
-        final ContentHandlerFactory factory = new BasicContentHandlerFactory(BasicContentHandlerFactory.HANDLER_TYPE.HTML, -1);
+        final ContentHandlerFactory factory = new BasicContentHandlerFactory(BasicContentHandlerFactory.HANDLER_TYPE.BODY, -1);
         final RecursiveParserWrapperHandler handler = new RecursiveParserWrapperHandler(factory);
         final Metadata metadata = new Metadata();
         metadata.set(Metadata.RESOURCE_NAME_KEY, filename);
@@ -485,5 +485,26 @@ public class AnalyzerUtils {
             autoDetectParser.parse(stream, handler, metadata, context);
             return handler.getMetadataList();
         }
+    }
+
+    /**
+     * Returns file version by input file instance {@link File}
+     *
+     * @param file - initial input file instance {@link File}
+     * @return file version
+     * @throws IOException
+     * @throws SAXException
+     * @throws TikaException
+     */
+    public static String parseSymLinks(final File file) throws IOException, SAXException, TikaException {
+        final LinkContentHandler handler = new LinkContentHandler();
+        final Metadata metadata = new Metadata();
+        final DocumentAreaParser parser = new DocumentAreaParser();
+        parser.parse(IOUtils.toInputStream(file.getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)), handler, metadata);
+
+        final List<Link> links = handler.getLinks();
+        if (links.size() < 2) throw new IOException("Must have installed at least 2 versions!");
+        Collections.sort(links, Comparator.comparing(Link::getText));
+        return links.get(links.size() - 2).getText();
     }
 }

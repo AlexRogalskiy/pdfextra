@@ -45,10 +45,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class DirectoryListParser implements Parser {
 
+    /**
+     * Default explicit serialVersionUID for interoperability
+     */
     private static final long serialVersionUID = 2717930544410610735L;
 
     /**
-     * DEfault supported file types
+     * Default supported file types
      */
     private static Set<MediaType> DEFAULT_SUPPORTED_TYPES = new HashSet<>(Collections.singletonList(MediaType.TEXT_PLAIN));
 
