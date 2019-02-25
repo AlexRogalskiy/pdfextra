@@ -33,6 +33,7 @@ import org.apache.tika.language.detect.LanguageDetector;
 import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
+import org.apache.tika.sax.BodyContentHandler;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.xml.sax.SAXException;
@@ -45,7 +46,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
 /**
- * Analyzer utils unit test
+ * Analyzer utilities unit test
  *
  * @author Alexander Rogalskiy
  * @version 1.1
@@ -103,7 +104,7 @@ public class AnalyzerUtilsUnitTest {
 
         try (final InputStream stream = new FileInputStream(file)) {
             // when
-            final String content = AnalyzerUtils.getContentByParser(stream);
+            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler());
 
             // then
             assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
@@ -165,7 +166,7 @@ public class AnalyzerUtilsUnitTest {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     @DisplayName("Test document language by default facade")
     public void whenUsingFacade_thenLanguageIsReturned() throws IOException, TikaException {
         // given
@@ -181,8 +182,44 @@ public class AnalyzerUtilsUnitTest {
             languageDetector.loadModels();
             final List<LanguageResult> languageResultList = languageDetector.detectAll(content);
 
-            assertThat(languageResultList, hasSize(10));
+            assertThat(languageResultList, hasSize(3));
             assertEquals("en", languageResultList.get(0).getLanguage());
+        }
+    }
+
+    @Test
+    @DisplayName("Test embedded document content by default parser")
+    public void whenUsingParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
+        // given
+        final String fileName = "src/test/java/resources/content/tika-embedded.docx";
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler());
+
+            // then
+            assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
+            assertThat(content, containsString("detects and extracts metadata and text"));
+        }
+    }
+
+    @Test
+    @DisplayName("Test embedded document content by recursive parser")
+    public void whenUsingRecursiveParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
+        // given
+        final String fileName = "src/test/java/resources/content/tika-embedded.docx";
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new FileInputStream(file)) {
+            // when
+            final String content = AnalyzerUtils.getContentByParser(stream, new BodyContentHandler());
+
+            // then
+            assertThat(content, containsString("Apache Tika - a content analysis toolkit"));
+            assertThat(content, containsString("detects and extracts metadata and text"));
         }
     }
 }

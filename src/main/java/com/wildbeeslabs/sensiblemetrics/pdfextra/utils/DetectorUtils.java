@@ -39,7 +39,7 @@ import java.net.URL;
 import java.util.Objects;
 
 /**
- * Detector utils implementation
+ * Detector utilities implementation
  */
 @Slf4j
 @UtilityClass
@@ -74,6 +74,9 @@ public class DetectorUtils {
         final Detector detector = MimeTypesFactory.create(DEFAULT_MIME_TYPES_CONFIG);
         final Detector customDetector = new Detector() {
 
+            /**
+             * Default explicit serialVersionUID for interoperability
+             */
             private static final long serialVersionUID = -5420638839201540749L;
 
             public MediaType detect(final InputStream input, final Metadata metadata) {
@@ -91,8 +94,8 @@ public class DetectorUtils {
     /**
      * Returns mime info of input content file by collection of prescription types
      *
-     * @param sourceType - initial input prescription file name {@see "file:///path/to/prescription-type.xml"}
-     * @param fileName   - initial input content file name (@see "/path/to/prescription.xpd")
+     * @param sourceType - initial input prescription file name (e.g. "file:///path/to/prescription-type.xml")
+     * @param fileName   - initial input content file name (e.g. "/path/to/prescription.xpd")
      * @return mime info of input content file
      * @throws Exception
      */
@@ -105,12 +108,12 @@ public class DetectorUtils {
     /**
      * Returns mime info of input content file by collection of prescription types
      *
-     * @param sourceType - initial input prescription file name {@see "file:///path/to/prescription-type.xml"}
-     * @param fileName   - initial input content file name (@see "/path/to/prescription.xpd")
+     * @param sourceType - initial input prescription file name (e.g. "file:///path/to/prescription-type.xml")
+     * @param fileName   - initial input content file name (e.g. "/path/to/prescription.xpd")
      * @return mime info of input content file
      * @throws Exception
      */
-    public static String getMimeInfoByEncryptedtor(final String sourceType, final String fileName) throws Exception {
+    public static String getMimeInfoByEncryptedDetector(final String sourceType, final String fileName) throws Exception {
         final MimeTypes typeDatabase = MimeTypesFactory.create(new URL(sourceType));
         final Tika tika = new Tika(new CompositeDetector(typeDatabase, new EncryptedPrescriptionDetector()));
         return tika.detect(fileName);
