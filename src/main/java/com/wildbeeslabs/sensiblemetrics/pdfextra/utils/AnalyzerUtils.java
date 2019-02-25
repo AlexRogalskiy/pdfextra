@@ -46,6 +46,7 @@ import org.apache.tika.parser.*;
 import org.apache.tika.parser.html.HtmlMapper;
 import org.apache.tika.parser.html.HtmlParser;
 import org.apache.tika.parser.html.IdentityHtmlMapper;
+import org.apache.tika.parser.pdf.PDFParser;
 import org.apache.tika.parser.txt.TXTParser;
 import org.apache.tika.parser.xml.XMLParser;
 import org.apache.tika.sax.*;
@@ -120,7 +121,8 @@ public class AnalyzerUtils {
     /**
      * Returns text content by input stream {@link InputStream} and {@link AutoDetectParser} parser
      *
-     * @param stream - initial input stream {@link InputStream}
+     * @param stream  - initial input stream {@link InputStream}
+     * @param handler - initial input content handler {@link InputStream}
      * @return text content {@link String}
      * @throws IOException
      * @throws TikaException
@@ -131,6 +133,24 @@ public class AnalyzerUtils {
         final Metadata metadata = new Metadata();
         final ParseContext context = new ParseContext();
         autoDetectParser.parse(stream, handler, metadata, context);
+        return handler.toString();
+    }
+
+    /**
+     * Returns pdf content by input stream {@link InputStream}
+     *
+     * @param stream  - initial input stream {@link InputStream
+     * @param handler - initial input content handler {@link InputStream}
+     * @return text content {@link String}
+     * @throws IOException
+     * @throws SAXException
+     * @throws TikaException
+     */
+    public static String getPdfContentByParser(final InputStream stream, final ContentHandler handler) throws IOException, SAXException, TikaException {
+        final PDFParser parser = new PDFParser();
+        final Metadata metadata = new Metadata();
+        final ParseContext context = new ParseContext();
+        parser.parse(stream, handler, metadata, context);
         return handler.toString();
     }
 
@@ -333,7 +353,6 @@ public class AnalyzerUtils {
      */
     public static String parseFileStream(final String filename, final ContentHandler handler) throws Exception {
         try (final InputStream stream = new FileInputStream(new File(filename))) {
-            //final ContentHandler handler = new BodyContentHandler();//new DefaultHandler();
             return getContentByParser(stream, handler);
         }
     }
@@ -476,6 +495,7 @@ public class AnalyzerUtils {
      *
      * @param stream  - initial input stream {@link InputStream}
      * @param handler - initial input content handler {@link ContentHandler}
+     * @param parser  - initial input parser {@link Parser}
      * @throws Exception
      */
     public static void parseByCustomDecorator(final InputStream stream, final ContentHandler handler, final Parser parser) throws Exception {
@@ -536,7 +556,7 @@ public class AnalyzerUtils {
      * @param path  - initial input file path {@link Path}
      * @return true - if query matches input file content, false - otherwise
      */
-    public static boolean containsInFile(final String query, final Path path) {
+    public static boolean containsIn(final String query, final Path path) {
         final Tika tika = new Tika();
         final Metadata metadata = new Metadata();
         final ParseContext context = new ParseContext();
@@ -545,7 +565,7 @@ public class AnalyzerUtils {
         try (final InputStream stream = new BufferedInputStream(Files.newInputStream(path))) {
             tika.getParser().parse(stream, new InterruptingContentHandler(query), metadata, context);
         } catch (SAXException | TikaException | IOException e) {
-            log.error(String.format("ERROR: cannot parse input file content={%s} by query={%s}", path, query));
+            log.error(String.format("ERROR: cannot parse input file content={%s} by query={%s}", path.toAbsolutePath(), query));
         }
         return false;
     }
@@ -555,6 +575,9 @@ public class AnalyzerUtils {
      * <p>
      * Throws {@link QueryMatchedException} when query string is found.
      */
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
     public class InterruptingContentHandler extends DefaultHandler {
         /**
          * Default query to parse by

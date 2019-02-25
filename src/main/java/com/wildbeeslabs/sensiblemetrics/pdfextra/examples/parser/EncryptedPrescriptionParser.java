@@ -21,43 +21,68 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.wildbeeslabs.sensiblemetrics.pdfextra.parser;
+package com.wildbeeslabs.sensiblemetrics.pdfextra.examples.parser;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.AbstractParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.xml.ElementMetadataHandler;
-import org.apache.tika.parser.xml.XMLParser;
-import org.apache.tika.sax.TeeContentHandler;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Prescription parser implementation {@link XMLParser}
+ * Encrypted parser implementation {@link AbstractParser}
  */
-public class PrescriptionParser extends XMLParser {
+@Slf4j
+@Data
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class EncryptedPrescriptionParser extends AbstractParser {
 
     /**
      * Default explicit serialVersionUID for interoperability
      */
-    private static final long serialVersionUID = -6729646995818754304L;
+    public static final long serialVersionUID = -7816987249611278541L;
     /**
      * Default prescription media type
      */
     public static final String DEFAULT_PRESCRIPTION_MEDIA_TYPE = "x-prescription+xml";
 
+    /**
+     * Default key value {@link Key}
+     */
+    private final Key key;
+
     @Override
-    protected ContentHandler getContentHandler(final ContentHandler handler, final Metadata metadata, final ParseContext context) {
-        String xpd = "http://example.com/2011/xpd";
-        final ContentHandler doctor = new ElementMetadataHandler(xpd, "doctor", metadata, "xpd:doctor");
-        final ContentHandler patient = new ElementMetadataHandler(xpd, "patient", metadata, "xpd:patient");
-        return new TeeContentHandler(super.getContentHandler(handler, metadata, context), doctor, patient);
+    public void parse(final InputStream stream, final ContentHandler handler, final Metadata metadata, final ParseContext context) throws IOException, SAXException, TikaException {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, getKey());
+            final InputStream decrypted = new CipherInputStream(stream, cipher);
+            new PrescriptionParser().parse(decrypted, handler, metadata, context);
+        } catch (GeneralSecurityException e) {
+            throw new TikaException("Unable to decrypt a digital prescription", e);
+        }
     }
 
     @Override
-    public Set<MediaType> getSupportedTypes(final ParseContext context) {
+    public Set<MediaType> getSupportedTypes(ParseContext context) {
         return Collections.singleton(MediaType.application(DEFAULT_PRESCRIPTION_MEDIA_TYPE));
     }
 }

@@ -21,22 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.wildbeeslabs.sensiblemetrics.pdfextra.detector;
+package com.wildbeeslabs.sensiblemetrics.pdfextra.examples.parser;
 
-import org.apache.tika.detect.Detector;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * Encrypted prescription detector implementation {@link Detector}
+ * Phone parser implementation {@link Parser}
  */
-public class EncryptedPrescriptionDetector implements Detector {
+@Slf4j
+@Data
+@EqualsAndHashCode
+@ToString
+public class PhoneParser implements Parser {
+
+    /**
+     * Default explicit serialVersionUID for interoperability
+     */
+    public static final long serialVersionUID = -5091769487801619635L;
+
+    /**
+     * Default phone media type
+     */
+    public static final String DEFAULT_PHONE_MEDIA_TYPE = "x-phone+xml";
 
     @Override
-    public MediaType detect(final InputStream inputStream, final Metadata metadata) throws IOException {
-        return null;
+    public void parse(final InputStream stream, final ContentHandler handler, final Metadata metadata, final ParseContext context) throws IOException, SAXException, TikaException {
+        parse(stream, handler, metadata, new ParseContext());
+    }
+
+    @Override
+    public Set<MediaType> getSupportedTypes(final ParseContext context) {
+        return Collections.singleton(MediaType.application(DEFAULT_PHONE_MEDIA_TYPE));
     }
 }

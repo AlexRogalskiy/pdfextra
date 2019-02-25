@@ -23,16 +23,18 @@
  */
 package com.wildbeeslabs.sensiblemetrics.pdfextra.parser;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +45,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Directory list parser implementation {@link Parser}
  */
+@Slf4j
+@Data
+@EqualsAndHashCode
+@ToString
 public class DirectoryListParser implements Parser {
 
     /**
@@ -58,21 +64,22 @@ public class DirectoryListParser implements Parser {
     /*
      * (non-Javadoc)
      *
-     * @see org.apache.tika.parser.Parser#getSupportedTypes(
-     * org.apache.tika.parser.ParseContext)
+     * @see org.apache.tika.parser.Parser#parse(java.io.InputStream,
+     * org.xml.sax.ContentHandler, org.apache.tika.metadata.Metadata)
      */
-    public Set<MediaType> getSupportedTypes(final ParseContext context) {
-        return DEFAULT_SUPPORTED_TYPES;
+    public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata) throws IOException {
+        this.parse(is, handler, metadata, new ParseContext());
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see org.apache.tika.parser.Parser#parse(java.io.InputStream,
-     * org.xml.sax.ContentHandler, org.apache.tika.metadata.Metadata)
+     * @see org.apache.tika.parser.Parser#getSupportedTypes(
+     * org.apache.tika.parser.ParseContext)
      */
-    public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata) throws IOException, SAXException, TikaException {
-        this.parse(is, handler, metadata, new ParseContext());
+    @Override
+    public Set<MediaType> getSupportedTypes(final ParseContext context) {
+        return DEFAULT_SUPPORTED_TYPES;
     }
 
     /*
@@ -82,6 +89,7 @@ public class DirectoryListParser implements Parser {
      * org.xml.sax.ContentHandler, org.apache.tika.metadata.Metadata,
      * org.apache.tika.parser.ParseContext)
      */
+    @Override
     public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata, final ParseContext context) throws IOException {
         final List<String> lines = FileUtils.readLines(TikaInputStream.get(is).getFile(), UTF_8);
         for (final String line : lines) {

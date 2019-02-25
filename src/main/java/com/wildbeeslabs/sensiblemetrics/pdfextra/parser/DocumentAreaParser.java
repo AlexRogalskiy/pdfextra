@@ -23,6 +23,10 @@
  */
 package com.wildbeeslabs.sensiblemetrics.pdfextra.parser;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -45,6 +49,10 @@ import java.util.Set;
 /**
  * Document area parser implementation {@link Parser}
  */
+@Slf4j
+@Data
+@EqualsAndHashCode
+@ToString
 public class DocumentAreaParser implements Parser {
 
     /**
@@ -58,6 +66,7 @@ public class DocumentAreaParser implements Parser {
      * @see org.apache.tika.parser.Parser#getSupportedTypes(
      * org.apache.tika.parser.ParseContext)
      */
+    @Override
     public Set<MediaType> getSupportedTypes(final ParseContext context) {
         return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(MediaType.TEXT_PLAIN)));
     }
@@ -68,8 +77,8 @@ public class DocumentAreaParser implements Parser {
      * @see org.apache.tika.parser.Parser#parse(java.io.InputStream,
      * org.xml.sax.ContentHandler, org.apache.tika.metadata.Metadata)
      */
-    public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata) throws IOException, SAXException, TikaException {
-        parse(is, handler, metadata, new ParseContext());
+    public void parse(final InputStream stream, final ContentHandler handler, final Metadata metadata) throws IOException, SAXException, TikaException {
+        parse(stream, handler, metadata, new ParseContext());
     }
 
     /*
@@ -79,7 +88,8 @@ public class DocumentAreaParser implements Parser {
      * org.xml.sax.ContentHandler, org.apache.tika.metadata.Metadata,
      * org.apache.tika.parser.ParseContext)
      */
-    public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata, final ParseContext context) throws IOException, SAXException, TikaException {
+    @Override
+    public void parse(final InputStream is, final ContentHandler handler, final Metadata metadata, final ParseContext context) throws IOException, SAXException {
         final File deployArea = new File(IOUtils.toString(is, StandardCharsets.UTF_8));
         final File[] versions = deployArea.listFiles(pathname -> !pathname.getName().startsWith("current"));
 

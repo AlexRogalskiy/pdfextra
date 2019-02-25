@@ -23,7 +23,7 @@
  */
 package com.wildbeeslabs.sensiblemetrics.pdfextra.utils;
 
-import com.wildbeeslabs.sensiblemetrics.pdfextra.detector.EncryptedPrescriptionDetector;
+import com.wildbeeslabs.sensiblemetrics.pdfextra.examples.detector.EncryptedPrescriptionDetector;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -115,7 +115,7 @@ public class DetectorUtils {
      */
     public static String getMimeInfoByEncryptedDetector(final String sourceType, final String fileName) throws Exception {
         final MimeTypes typeDatabase = MimeTypesFactory.create(new URL(sourceType));
-        final Tika tika = new Tika(new CompositeDetector(typeDatabase, new EncryptedPrescriptionDetector()));
+        final Tika tika = new Tika(new CompositeDetector(typeDatabase, new EncryptedPrescriptionDetector(null)));
         return tika.detect(fileName);
     }
 }
