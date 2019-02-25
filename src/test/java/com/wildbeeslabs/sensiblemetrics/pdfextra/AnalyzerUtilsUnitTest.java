@@ -58,11 +58,16 @@ import static org.junit.Assert.*;
 @ToString
 public class AnalyzerUtilsUnitTest {
 
+    /**
+     * Default file content directory
+     */
+    public static final String DEFAULT_FILE_CONTENT_DIRECTORY = "src/test/java/resources/content/";
+
     @Test
-    @DisplayName("Test document media type by default detector")
-    public void whenUsingDetector_thenDocumentTypeIsReturned() throws IOException {
+    @DisplayName("Test document media type <pdf> by default detector")
+    public void whenUsingDetector_thenPdfDocumentTypeIsReturned() throws IOException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.pdf";
+        final String fileName = getFilePath("tika.pdf");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -72,7 +77,125 @@ public class AnalyzerUtilsUnitTest {
 
             // then
             assertEquals("application/pdf", String.valueOf(mediaType));
-            assertNotEquals("application/octet-stream", String.valueOf(mediaType.toString()));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <docx> by default detector")
+    public void whenUsingDetector_thenDocxDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.docx");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("application/x-tika-ooxml", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <avi> by default detector")
+    public void whenUsingDetector_thenAviDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.avi");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("video/x-msvideo", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <html> by default detector")
+    public void whenUsingDetector_thenHtmlDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.html");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("text/html", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <mp3> by default detector")
+    public void whenUsingDetector_thenMp3DocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.mp3");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("audio/mpeg", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <odp> by default detector")
+    public void whenUsingDetector_thenOdpDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.odp");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("application/zip", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <png> by default detector")
+    public void whenUsingDetector_thenPngDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.png");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("image/png", String.valueOf(mediaType));
+        }
+    }
+
+    @Test
+    @DisplayName("Test document media type <txt> by default detector")
+    public void whenUsingDetector_thenTxtDocumentTypeIsReturned() throws IOException {
+        // given
+        final String fileName = getFilePath("tika.txt");
+        final File file = new File(fileName);
+        assertTrue("File should exist", file.exists());
+
+        try (final InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+            // when
+            final MediaType mediaType = AnalyzerUtils.detectDocTypeByDetector(stream);
+
+            // then
+            assertEquals("application/pdf", String.valueOf(mediaType));
         }
     }
 
@@ -80,7 +203,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document media type by default facade")
     public void whenUsingFacade_thenDocumentTypeIsReturned() throws IOException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.docx";
+        final String fileName = getFilePath("tika.docx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -90,7 +213,6 @@ public class AnalyzerUtilsUnitTest {
 
             // then
             assertEquals("application/x-tika-ooxml", mediaType);
-            assertNotEquals("application/pdf", mediaType);
         }
     }
 
@@ -98,7 +220,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document content by default parser")
     public void whenUsingParser_thenContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.docx";
+        final String fileName = getFilePath("tika.docx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -116,7 +238,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document content by default facade")
     public void whenUsingFacade_thenContentIsReturned() throws IOException, TikaException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.docx";
+        final String fileName = getFilePath("tika.docx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -134,7 +256,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document meta data by default parser")
     public void whenUsingParser_thenMetadataIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final String fileName = getFilePath("tika.xlsx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -152,7 +274,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document meta data by default facade")
     public void whenUsingFacade_thenMetadataIsReturned() throws IOException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final String fileName = getFilePath("tika.xlsx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -170,7 +292,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test document language by default facade")
     public void whenUsingFacade_thenLanguageIsReturned() throws IOException, TikaException {
         // given
-        final String fileName = "src/test/java/resources/content/tika.xlsx";
+        final String fileName = getFilePath("tika.xlsx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -191,7 +313,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test embedded document content by default parser")
     public void whenUsingParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
+        final String fileName = getFilePath("tika_embedded.docx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -209,7 +331,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test embedded document content by recursive parser")
     public void whenUsingRecursiveParser_thenEmbeddedContentIsReturned() throws IOException, TikaException, SAXException {
         // given
-        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
+        final String fileName = getFilePath("tika_embedded.docx");
         final File file = new File(fileName);
         assertTrue("File should exist", file.exists());
 
@@ -227,7 +349,7 @@ public class AnalyzerUtilsUnitTest {
     @DisplayName("Test embedded document meta data by recursive parser")
     public void testRecursiveParserWrapperExample() throws IOException, SAXException, TikaException {
         // given
-        final String fileName = "src/test/java/resources/content/tika_embedded.docx";
+        final String fileName = getFilePath("tika_embedded.docx");
 
         // when
         final List<Metadata> metadataList = AnalyzerUtils.parseByRecursiveParser(fileName);
@@ -237,5 +359,9 @@ public class AnalyzerUtilsUnitTest {
         // then
         //assertEquals("/embed1.zip/embed2.zip/embed3.zip/embed3.txt", metadata.get("X-TIKA:embedded_resource_path"));
         //assertContains("When in the Course", metadata.get("X-TIKA:content"));
+    }
+
+    protected String getFilePath(final String fileName) {
+        return DEFAULT_FILE_CONTENT_DIRECTORY.concat(fileName);
     }
 }
