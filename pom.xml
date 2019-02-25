@@ -157,6 +157,7 @@
         <joda-time.version>2.10.1</joda-time.version>
         <guava.version>27.0.1-jre</guava.version>
         <tika.version>1.20</tika.version>
+        <camel-tika.version>3.0.0-M1</camel-tika.version>
 
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -829,26 +830,31 @@
             <version>${tika.version}</version>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-translate</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
 
         <!-- Apache Camel Tika library dependencies -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-tika</artifactId>
-            <version>3.0.0-M1</version>
+            <version>${camel-tika.version}</version>
         </dependency>
 
         <!-- DDF Tika library dependencies -->
         <!--<dependency>-->
-            <!--<groupId>ddf.mime.tika</groupId>-->
-            <!--<artifactId>mime-tika-resolver</artifactId>-->
-            <!--<version>RELEASE</version>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>ddf.mime.tika</groupId>-->
+        <!--<artifactId>mime-tika-resolver</artifactId>-->
+        <!--<version>RELEASE</version>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>ddf.catalog.transformer</groupId>-->
-            <!--<artifactId>tika-input-transformer</artifactId>-->
-            <!--<version>RELEASE</version>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>ddf.catalog.transformer</groupId>-->
+        <!--<artifactId>tika-input-transformer</artifactId>-->
+        <!--<version>RELEASE</version>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
 
         <!-- Univocity library dependencies -->
