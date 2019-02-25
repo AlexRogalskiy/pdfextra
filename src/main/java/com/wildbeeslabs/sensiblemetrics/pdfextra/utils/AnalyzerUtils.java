@@ -26,6 +26,9 @@ package com.wildbeeslabs.sensiblemetrics.pdfextra.utils;
 import com.google.common.collect.ImmutableMap;
 import com.wildbeeslabs.sensiblemetrics.pdfextra.model.DocumentInfo;
 import com.wildbeeslabs.sensiblemetrics.pdfextra.parser.DocumentAreaParser;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +41,7 @@ import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MediaTypeRegistry;
 import org.apache.tika.parser.*;
 import org.apache.tika.parser.html.HtmlMapper;
 import org.apache.tika.parser.html.HtmlParser;
@@ -50,11 +54,14 @@ import org.apache.tika.sax.xpath.MatchingContentHandler;
 import org.apache.tika.sax.xpath.XPathParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
@@ -82,6 +89,20 @@ public class AnalyzerUtils {
         final Detector detector = new DefaultDetector();
         final Metadata metadata = new Metadata();
         return detector.detect(stream, metadata);
+    }
+
+    /**
+     * Returns collection of all supported media types {@link MediaType}
+     *
+     * @return collection of all supported media types {@link Set}
+     */
+    public static Set<MediaType> getMediaTypes() {
+        final Set<MediaType> result = new HashSet<>();
+        final MediaTypeRegistry registry = MediaTypeRegistry.getDefaultRegistry();
+        for (final MediaType type : registry.getTypes()) {
+            result.addAll(registry.getAliases(type));
+        }
+        return result;
     }
 
     /**
@@ -506,5 +527,66 @@ public class AnalyzerUtils {
         if (links.size() < 2) throw new IOException("Must have installed at least 2 versions!");
         Collections.sort(links, Comparator.comparing(Link::getText));
         return links.get(links.size() - 2).getText();
+    }
+
+    /**
+     * Returns binary flag by initial input query string and file path {@link Path}
+     *
+     * @param query - initial input query string to parse by
+     * @param path  - initial input file path {@link Path}
+     * @return true - if query matches input file content, false - otherwise
+     */
+    public static boolean containsInFile(final String query, final Path path) {
+        final Tika tika = new Tika();
+        final Metadata metadata = new Metadata();
+        final ParseContext context = new ParseContext();
+        context.set(Parser.class, tika.getParser());
+
+        try (final InputStream stream = new BufferedInputStream(Files.newInputStream(path))) {
+            tika.getParser().parse(stream, new InterruptingContentHandler(query), metadata, context);
+        } catch (SAXException | TikaException | IOException e) {
+            log.error(String.format("ERROR: cannot parse input file content={%s} by query={%s}", path, query));
+        }
+        return false;
+    }
+
+    /**
+     * Content handler that searched for {@code query} in characters send to it.
+     * <p>
+     * Throws {@link QueryMatchedException} when query string is found.
+     */
+    public class InterruptingContentHandler extends DefaultHandler {
+        /**
+         * Default query to parse by
+         */
+        private String query;
+        /**
+         * Default string resultset {@link StringBuilder}
+         */
+        private StringBuilder sb = new StringBuilder();
+
+        /**
+         * Default interrupting content handler with input query string
+         *
+         * @param query - initial input query to be parsed by
+         */
+        public InterruptingContentHandler(final String query) {
+            this.query = query;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            sb.append(new String(ch, start, length).toLowerCase(Locale.getDefault()));
+            if (sb.toString().contains(query)) throw new QueryMatchedException();
+            if (sb.length() > 2 * query.length()) {
+                sb.delete(0, sb.length() - query.length());
+            }
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    public class QueryMatchedException extends SAXException {
     }
 }
