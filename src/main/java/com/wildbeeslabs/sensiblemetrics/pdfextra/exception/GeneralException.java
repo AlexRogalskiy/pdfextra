@@ -21,56 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.wildbeeslabs.sensiblemetrics.pdfextra.model;
+package com.wildbeeslabs.sensiblemetrics.pdfextra.exception;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.UUID;
-
-/**
- * Default document info model
- *
- * @author Alexander Rogalskiy
- * @version 1.1
- * @since 1.0
- */
-@Builder
-@Data
-@EqualsAndHashCode
-@ToString
-public class DocumentInfo implements Serializable {
-
-    /**
-     * Default explicit serialVersionUID for interoperability
-     */
-    private static final long serialVersionUID = 5938006355799099121L;
-
-    /**
-     * Default document info constructor
-     */
-    public DocumentInfo() {
-        this.id = UUID.randomUUID().toString();
+public class GeneralException extends RuntimeException {
+    public GeneralException() {
     }
 
-    /**
-     * Default document info ID
-     */
-    private String id;
-    /**
-     * Default document name
-     */
-    private CharSequence name;
-    /**
-     * Default document content;
-     */
-    private CharSequence content;
-    /**
-     * Default created date
-     */
-    private Date created;
+    public GeneralException(String message) {
+        super(message);
+    }
+
+    public GeneralException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public GeneralException(Throwable cause) {
+        super(cause);
+    }
+
+    public GeneralException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    @Override
+    public String getMessage() {
+        return this.toString();
+    }
+
+    @Override
+    public String toString() {
+        return super.getMessage();
+    }
 }
